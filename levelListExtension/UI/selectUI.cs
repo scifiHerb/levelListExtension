@@ -65,13 +65,13 @@ namespace levelListExtension.UI
         }
         private void ResultsView_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            Plugin.Log.Info("Activate");
+            //Plugin.Log.Info("Activate");
             root.gameObject.SetActive(true);
-            
+
         }
         private void ResultsView_didDeactivateEvent(bool removedFromHierarchy, bool screenSystemDisabling)
         {
-            Plugin.Log.Info("DEACTIVATE");
+            //Plugin.Log.Info("DEACTIVATE");
             root.gameObject.SetActive(false);
         }
 

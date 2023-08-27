@@ -22,6 +22,8 @@ using levelListExtension.HarmonyPatches;
 using BS_Utils.Utilities;
 using IPA.Utilities;
 using System.Threading.Tasks;
+using TMPro;
+using System.Security.Policy;
 
 namespace levelListExtension
 {
@@ -67,7 +69,7 @@ namespace levelListExtension
 
             Log.Debug("OnApplicationStart");
             new GameObject("levelListExtensionController").AddComponent<levelListExtensionController>();
-
+            BSEvents.menuSceneActive += OnMenuSceneActive;
             //https://scoresaber.com/api/player/76561199194622414/scores
 
 
@@ -79,18 +81,23 @@ namespace levelListExtension
             {
                 LevelList.plScore = JsonConvert.DeserializeObject<Dictionary<string, PlayerScore>>(str);
             }
-
-            GetSongStats($"https://scoresaber.com/api/player/{SteamUser.GetSteamID()}",100);
-                
             
-
-
+            //GetSongStats($"https://scoresaber.com/api/player/{SteamUser.GetSteamID()}",100);
         }
+
+        private void OnMenuSceneActive()
+        {
+            Plugin.Log.Info("menu scene active");
+            GetSongStats(1);
+        }
+
         private static int songcount = 0;
         private string songFileName = "\\UserData\\levelListExtension_Songs.json";
-        private static async void GetSongStats(string url,int count)
+        public static async void GetSongStats(int count,TextMeshProUGUI text = null)
         {
+            string url = $"https://scoresaber.com/api/player/{SteamUser.GetSteamID()}";
             var httpClient = new HttpClient();
+            songcount = 0;
 
             for (int i = 0; i < count; i++)
             {
@@ -108,12 +115,12 @@ namespace levelListExtension
                         LevelList.plScore.Add(l.Leaderboard.SongHash + l.Leaderboard.Difficulty.DifficultyRaw, l);
 
                         songcount++;
-                        Plugin.Log.Info(songcount.ToString() + "-" + l.Leaderboard.SongName + ":" + l.Leaderboard.SongHash);
+                        if(text != null)text.text = $"({songcount.ToString()}/{(count*8).ToString()}) " + $"Loaded:<color=#00FF00>{l.Leaderboard.SongName}</color>";
                     }
                 }
-                if (i != 0 && i % 10 == 0) await Task.Delay(3000);
+                if (i != 0 && i % 10 == 0) await Task.Delay(1000);
             }
-
+            if (text != null) text.text += " - Completed";
         }
 
         [OnExit]

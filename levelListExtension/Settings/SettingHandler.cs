@@ -4,37 +4,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
+using Steamworks;
+using TMPro;
 
 namespace levelListExtension.Settings
 {
     class SettingsHandler : PersistentSingleton<SettingsHandler>
     {
-        [UIValue("showGood")]
-        public bool showGood
+        [UIValue("Enable")]
+        public bool Enable
         {
-            get => Configuration.Instance.showGood;
+            get => Configuration.Instance.Enable;
             set
             {
-                Configuration.Instance.showGood = value;
+                Configuration.Instance.Enable = value;
             }
         }
-        [UIValue("showBad")]
-        public bool showBad
+        [UIAction("onRefresh")]
+        public void onRefresh()
         {
-            get => Configuration.Instance.showBad;
-            set
-            {
-                Configuration.Instance.showBad = value;
-            }
-        }
-        [UIValue("showBSR")]
-        public bool showBSR
-        {
-            get => Configuration.Instance.showBSR;
-            set
-            {
-                Configuration.Instance.showBSR = value;
-            }
+            Plugin.Log.Info("count:" + Settings.Configuration.Instance.count.ToString());
+            //debug
+            Plugin.GetSongStats(Settings.Configuration.Instance.count,refreshText);
         }
         public int selectDiff
         {
@@ -44,5 +35,8 @@ namespace levelListExtension.Settings
                 Configuration.Instance.selectDiff = value;
             }
         }
+
+        [UIComponent("refreshText")]
+        public TextMeshProUGUI refreshText = null;
     }
 }
