@@ -1,20 +1,13 @@
 # levelListExtension
 ビートセイバーの譜面リスト拡張MODです、指定した難易度のハイスコア(存在しない場合下の難易度）をリストに表示します.
+対応バージョンは1.29.1までなのと、新ノーツを含む譜面(V3)はScoreSaberにデータがないため取得できません。
 
 # 使い方
+ModSettingsからlevelListExtensionのrefreshボタンで過去のプレイ履歴を一括取得します、取得はバックグラウンドで行うので設定から抜けても問題ありません。
+取得数はデフォルトで800ですが設定ファイルのCount数から指定できます。
 
 
-・ModSettingsからlevelListExtensionのrefreshボタンで過去にプレイした譜面の一括取得ができます。
-
-・一括取得の際履歴の最後まで読み込むとその時点で停止します、ボタンを押した後はSettingから抜けて大丈夫です。
-
-・難易度は譜面リスト右上のボタンから順送りで指定して、指定した難易度のデータがない場合はその下の難易度から取得します。
-
-対応バージョンは1.29.1です、最新版では動作しません。
-
-ScoreSaberからの取得なので新ノーツ（V3)譜面はデータが無いため取得できません。
-
-# 設定項目
+# 設定項目 (\Beat Saber\UserData\levelListExtension.json)
 {
   "Enable": true,    MODのOn Off
   "selectDiff": 4,   指定難易度（0=easy,4=expert plus)
