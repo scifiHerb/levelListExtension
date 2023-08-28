@@ -26,7 +26,6 @@ namespace levelListExtension.HarmonyPatches
             PlayerData playerData, TextMeshProUGUI ____actionButtonText, StandardLevelDetailView __instance, IDifficultyBeatmap ____selectedDifficultyBeatmap)
         {
             var resultsView = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().FirstOrDefault();
-            Plugin.Log.Info("resultsView"+resultsView.ToString());
             selectUI.instance.Create(resultsView);
             
         }

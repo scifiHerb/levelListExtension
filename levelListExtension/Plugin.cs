@@ -69,8 +69,8 @@ namespace levelListExtension
 
             Log.Debug("OnApplicationStart");
             new GameObject("levelListExtensionController").AddComponent<levelListExtensionController>();
-            BSEvents.menuSceneActive += OnMenuSceneActive;
-            //https://scoresaber.com/api/player/76561199194622414/scores
+            BSEvents.levelSelected += OnLevelSelected;
+            //https://scoresaber.com/api/player/*/scores
 
 
             string songFileName = Directory.GetCurrentDirectory() + "\\UserData\\levelListExtension_Songs.json";
@@ -81,13 +81,10 @@ namespace levelListExtension
             {
                 LevelList.plScore = JsonConvert.DeserializeObject<Dictionary<string, PlayerScore>>(str);
             }
-            
-            //GetSongStats($"https://scoresaber.com/api/player/{SteamUser.GetSteamID()}",100);
         }
 
-        private void OnMenuSceneActive()
+        private void OnLevelSelected(LevelCollectionViewController lc,IPreviewBeatmapLevel lv)
         {
-            Plugin.Log.Info("menu scene active");
             GetSongStats(1);
         }
 
@@ -115,7 +112,7 @@ namespace levelListExtension
                         LevelList.plScore.Add(l.Leaderboard.SongHash + l.Leaderboard.Difficulty.DifficultyRaw, l);
 
                         songcount++;
-                        if(text != null)text.text = $"({songcount.ToString()}/{(count*8).ToString()}) " + $"Loaded:<color=#00FF00>{l.Leaderboard.SongName}</color>";
+                        if(text != null)text.text = $"({songcount.ToString()}/{(count*8).ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>";
                     }
                 }
                 if (i != 0 && i % 10 == 0) await Task.Delay(1000);

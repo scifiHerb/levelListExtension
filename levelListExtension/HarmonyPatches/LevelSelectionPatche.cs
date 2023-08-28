@@ -60,41 +60,49 @@ namespace levelListExtension.HarmonyPatches
                 //setText
                 //string diff = plScore[levelID].Leaderboard.Difficulty.DifficultyRaw;
                 string diff = "";
+                string diffColor = "#FFFFFF";
                 switch (selectDiff)
                 {
                     case 4:
                         diff = "Ex+";
+                        diffColor = "#00FFFF";
                         break;
                     case 3:
-                        diff = "E";
+                        diff = "Ex";
+                        diffColor = "#00FF00";
                         break;
                     case 2:
                         diff = "H";
+                        diffColor = "#FF8000";
                         break;
                     case 1:
                         diff = "N";
+                        diffColor = "#808080";
                         break;
                     case 0:
                         diff = "E";
+                        diffColor = "#808080";
                         break;
                 }
                 
                 float acc = ((float)plScore[levelID+diffRaw].Score.BaseScore / plScore[levelID + diffRaw].Leaderboard.MaxScore) * 100;
                 string accText = "";
                 string accColor = "#FFFFFF";
-                //set rank acc
-                if (acc == 100) { accText = "SSS"; accColor = "#0000FF"; }
-                else if (acc > 90.0F) { accText = "SS"; accColor = "#78FF78"; }
-                else if (acc > 80.0F) { accText = "A"; accColor = "#5AFF19"; }
-                else if (acc > 65.0F) { accText = "B"; accColor = "#14f078"; }
-                else if (acc > 50.0F) { accText = "C"; accColor = "#800000"; }
-                else if (acc > 35.0F) { accText = "D"; accColor = "#F00000"; }
-                else if (acc > 20.0F) { accText = "E"; accColor = "#FF0000"; }
 
-                ____songBpmText.text = $"<color={accColor}>{diff}</color>(<color=#FFCC4E>★</color>{plScore[levelID + diffRaw].Leaderboard.Stars}) " +
-                $"<color={accColor}>{accText}</color>(<color={accColor}>{acc.ToString("F")}</color>%) " +
+                //set rank acc
+                if (acc == 100) { accText = "SSS"; accColor = "#00FFFF"; }
+                else if (acc >= 90.0F) { accText = "SS"; accColor = "#00FFFF"; }
+                else if (acc >= 80.0F) { accText = "S"; accColor = "#00FF00"; }
+                else if (acc >= 65.0F) { accText = "A"; accColor = "#00FF00"; }
+                else if (acc >= 50.0F) { accText = "B"; accColor = "#FF8000"; }
+                else if (acc >= 35.0F) { accText = "C"; accColor = "#FF8000"; }
+                else if (acc >= 20.0F) { accText = "D"; accColor = "#FF0000"; }
+                else if (acc < 20.0F) { accText = "E"; accColor = "#FF0000"; }
+
+                ____songBpmText.text = $"<color={diffColor}>{diff}</color>(<color=#FFCC4E>★</color>{plScore[levelID + diffRaw].Leaderboard.Stars.ToString("F1")}) " +
+                $"<color={accColor}>{accText}</color>(<color={accColor}>{acc.ToString("F1")}</color>%) " +
                 $"<color=#FF0000>x</color>(<color=#FF0000>{(plScore[levelID + diffRaw].Score.MissedNotes + plScore[levelID + diffRaw].Score.BadCuts)}</color>)" +
-                $" - <color=#00FF00>{plScore[levelID + diffRaw].Score.Pp.ToString("F")}</color>pp";
+                $" - <color=#00FF00>{plScore[levelID + diffRaw].Score.Pp.ToString("F1")}</color>pp";
 
                 //set ui
                 ____songAuthorText.GetComponent<RectTransform>().anchorMax = new Vector2(0.5F, 0.5F);

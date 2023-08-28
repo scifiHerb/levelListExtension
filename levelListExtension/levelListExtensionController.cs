@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using SongDetailsCache;
-using SongDetailsCache.Structs;
+﻿using UnityEngine;
 using static SliderController.Pool;
-using BS_Utils.Utilities;
-using BeatSaberMarkupLanguage;
 
 namespace levelListExtension
 {
@@ -40,29 +29,12 @@ namespace levelListExtension
             GameObject.DontDestroyOnLoad(this); // Don't destroy this object on scene changes
             Instance = this;
             Plugin.Log?.Debug($"{name}: Awake()");
-            BSEvents.gameSceneLoaded += BSEvents_levelSelected;
         }
         /// <summary>
         /// Only ever called once on the first frame the script is Enabled. Start is called after any other script's Awake() and before Update().
         /// </summary>
         private void Start()
         {
-        }
-
-        private async void BSEvents_levelSelected()
-        {
-            Plugin.Log.Info("TEST**************");
-            await Test();
-        }
-
-        private async Task Test()
-        {
-            SongDetails details = await SongDetails.Init();
-            Song song;
-            details.songs.FindByMapId("ff83",out song);
-
-            Plugin.Log.Info(song.ToString());
-
         }
         /// <summary>
         /// Called every frame if the script is enabled.

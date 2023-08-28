@@ -23,7 +23,6 @@ namespace levelListExtension.Settings
         [UIAction("onRefresh")]
         public void onRefresh()
         {
-            Plugin.Log.Info("count:" + Settings.Configuration.Instance.count.ToString());
             //debug
             Plugin.GetSongStats(Settings.Configuration.Instance.count,refreshText);
         }

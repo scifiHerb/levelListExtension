@@ -16,6 +16,8 @@ using levelListExtension;
 using static IPA.Logging.Logger;
 using System.Configuration;
 using levelListExtension.Settings;
+using IPA.Utilities;
+using System.IO;
 
 namespace levelListExtension.UI
 {
@@ -34,7 +36,7 @@ namespace levelListExtension.UI
             resultsView.didDeactivateEvent += ResultsView_didDeactivateEvent;
 
             root.SetParent(GameObject.Find("ScreenContainer").transform);
-            root.localPosition = new Vector3(-14,22.5F,0);
+            root.localPosition = new Vector3(-7,20.5F,0);
             root.name = "selectButton";
 
             setDiffName();
@@ -82,7 +84,6 @@ namespace levelListExtension.UI
         [UIAction("onClick")]
         protected async Task onClick()
         {
-            Plugin.Log.Info("select button");
             Settings.Configuration.Instance.selectDiff += 1;
             if (Settings.Configuration.Instance.selectDiff > 4) Settings.Configuration.Instance.selectDiff = 0;
 
