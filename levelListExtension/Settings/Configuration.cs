@@ -10,7 +10,7 @@ namespace levelListExtension.Settings
     {
         public static Configuration Instance { get; set; } = null;
         public virtual bool Enable { get; set; } = true;
-        public int selectDiff;
+        public int selectDiff = 4;
         public int count = 100;
     }
 }
