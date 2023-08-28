@@ -10,7 +10,9 @@ ModSettingsからlevelListExtensionのrefreshボタンで過去のプレイ履�
 # 設定項目 (\Beat Saber\UserData\levelListExtension.json)
 {
   "Enable": true,    MODのOn Off
+
   "selectDiff": 4,   指定難易度（0=easy,4=expert plus)
+  
   "count": 100       取得譜面数（一度に8譜面取得するのでcount*8譜面取得します)
 }
 
