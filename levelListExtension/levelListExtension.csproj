@@ -69,11 +69,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Oculus.Platform.dll</HintPath>
     </Reference>
-    <Reference Include="SongDetailsCache, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <Private>False</Private>
-      <HintPath>$(BeatSaberDir)\Libs\SongDetailsCache.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="Steamworks.NET, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Steamworks.NET.dll</HintPath>
@@ -130,15 +125,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HarmonyPatches\DetailViewPatche.cs" />
     <Compile Include="HarmonyPatches\LevelSelectionPatche.cs" />
     <Compile Include="PlayerScores.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Configuration\PluginConfig.cs" />
     <Compile Include="levelListExtensionController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Configuration.cs" />
-    <Compile Include="Settings\SettingHandler.cs" />
+    <Compile Include="Settings\Settings.cs" />
     <Compile Include="UI\selectUI.cs" />
     <EmbeddedResource Include="UI\selectUI.bsml" />
   </ItemGroup>
@@ -148,7 +141,6 @@
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="levelListExtension.csproj.user" Condition="Exists('levelListExtension.csproj.user')" />
-    <EmbeddedResource Include="Settings\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks">

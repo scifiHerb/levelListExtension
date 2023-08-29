@@ -2,7 +2,9 @@
 using BeatSaberMarkupLanguage;
 using HarmonyLib;
 using levelListExtension;
+using levelListExtension.UI;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,8 +20,11 @@ namespace levelListExtension.HarmonyPatches
         private static void Postfix(LevelListTableCell __instance, IPreviewBeatmapLevel level, bool isFavorite, ref UnityEngine.UI.Image ____favoritesBadgeImage,
             TextMeshProUGUI ____songBpmText, TextMeshProUGUI ____songAuthorText)
         {
+            var resultsView = Resources.FindObjectsOfTypeAll<LevelSelectionNavigationController>().FirstOrDefault();
+            selectUI.instance.Create(resultsView);
+
             //return not custom level or mod disabled
-            if (level.levelID.IndexOf("custom_level") == -1 || !Settings.Configuration.Instance.Enable) return;
+            if (level.levelID.IndexOf("custom_level") == -1 || !Settings.Settings.Instance.Enable) return;
 
             string levelID = level.levelID.Substring(13);
             ____songBpmText.text = "";
@@ -27,7 +32,7 @@ namespace levelListExtension.HarmonyPatches
             __instance.transform.name = "test selectlist";
 
             string diffRaw = "";
-            int selectDiff = Settings.Configuration.Instance.selectDiff;
+            int selectDiff = Settings.Settings.Instance.selectDiff;
 
             for (; selectDiff != -1; selectDiff--)
             {
@@ -102,12 +107,16 @@ namespace levelListExtension.HarmonyPatches
                 ____songBpmText.text = $"<color={diffColor}>{diff}</color>(<color=#FFCC4E>★</color>{plScore[levelID + diffRaw].Leaderboard.Stars.ToString("F1")}) " +
                 $"<color={accColor}>{accText}</color>(<color={accColor}>{acc.ToString("F1")}</color>%) " +
                 $"<color=#FF0000>x</color>(<color=#FF0000>{(plScore[levelID + diffRaw].Score.MissedNotes + plScore[levelID + diffRaw].Score.BadCuts)}</color>)" +
-                $" - <color=#00FF00>{plScore[levelID + diffRaw].Score.Pp.ToString("F1")}</color>pp";
+                $"<color=#00FF00>{plScore[levelID + diffRaw].Score.Pp.ToString("F1")}</color>pp";
 
                 //set ui
-                ____songAuthorText.GetComponent<RectTransform>().anchorMax = new Vector2(0.5F, 0.5F);
+                ____songAuthorText.GetComponent<RectTransform>().anchorMax = new Vector2(0.6F, 0.5F);
                 var bpmIcon = ____songAuthorText.transform.parent.Find("BpmIcon");
                 if (bpmIcon != null) bpmIcon.gameObject.SetActive(false);
+
+                var songAuthorText = ____songAuthorText.transform.parent.Find("SongAuthor");
+                if (songAuthorText != null) songAuthorText.GetComponent<TextMeshProUGUI>().text = 
+                        $"[<color=#00FF00>{plScore[levelID + diffRaw].Leaderboard.LevelAuthorName}</color>]";
             }
             else
             {

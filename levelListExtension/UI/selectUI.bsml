@@ -1,1 +1,3 @@
-﻿<horizontal id="root"><button text='-' id='selectButton' on-click='onClick' preferred-height='6'/></horizontal>
+﻿<horizontal id="root" child-control-width='false'><button text='-' id='selectButton' on-click='onClick' preferred-height='6'/>
+	<text text='-' id='statusText'></text>
+</horizontal>

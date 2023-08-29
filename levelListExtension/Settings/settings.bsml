@@ -1,7 +1,0 @@
-<settings-container>
-
-	<button text="Refresh" on-click="onRefresh"></button>
-	<checkbox text='Enable' value='Enable'></checkbox>
-	<text text="-" id="refreshText" rich-text="true"></text>
-
-</settings-container>

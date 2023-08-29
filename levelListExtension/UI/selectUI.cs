@@ -25,27 +25,33 @@ namespace levelListExtension.UI
     {
         static public selectUI instance = new selectUI();
 
-        public void Create(StandardLevelDetailViewController resultsView)
+        public void Create(LevelSelectionNavigationController resultsView)
         {
             if (root != null) return;
             BSMLParser.instance.Parse(
                 Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), $"levelListExtension.UI.selectUI.bsml"),
                 resultsView.gameObject, instance
             );
+
+            
             resultsView.didActivateEvent += ResultsView_didActivateEvent;
             resultsView.didDeactivateEvent += ResultsView_didDeactivateEvent;
 
-            root.SetParent(GameObject.Find("ScreenContainer").transform);
-            root.localPosition = new Vector3(-7,20.5F,0);
+            root.localPosition = new Vector3(6,21F,0);
             root.name = "selectButton";
 
             setDiffName();
+            if (Settings.Settings.Instance.refresh)
+            {
+                Plugin.GetSongStats(Settings.Settings.Instance.count, statusText);
+                Settings.Settings.Instance.refresh = false;
+            }
         }
 
         private void setDiffName()
         {
             string result = "";
-            switch (Settings.Configuration.Instance.selectDiff)
+            switch (Settings.Settings.Instance.selectDiff)
             {
                 case 0:
                     result = "Easy";
@@ -69,7 +75,6 @@ namespace levelListExtension.UI
         {
             //Plugin.Log.Info("Activate");
             root.gameObject.SetActive(true);
-
         }
         private void ResultsView_didDeactivateEvent(bool removedFromHierarchy, bool screenSystemDisabling)
         {
@@ -84,15 +89,19 @@ namespace levelListExtension.UI
         [UIAction("onClick")]
         protected async Task onClick()
         {
-            Settings.Configuration.Instance.selectDiff += 1;
-            if (Settings.Configuration.Instance.selectDiff > 4) Settings.Configuration.Instance.selectDiff = 0;
+            Settings.Settings.Instance.selectDiff += 1;
+            if (Settings.Settings.Instance.selectDiff > 4) Settings.Settings.Instance.selectDiff = 0;
 
             setDiffName();
         }
 
         [UIComponent("root")]
         protected RectTransform root = null;
+        [UIComponent("statusTextGrid")]
+        protected RectTransform grid = null;
         [UIComponent("selectButton")]
         protected TextMeshProUGUI selectButton = null;
+        [UIComponent("statusText")]
+        protected TextMeshProUGUI statusText = null;
     }
 }

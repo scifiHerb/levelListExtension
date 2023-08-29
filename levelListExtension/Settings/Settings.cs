@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace levelListExtension.Settings
 {
-    public class Configuration
+    public class Settings
     {
-        public static Configuration Instance { get; set; } = null;
+        public static Settings Instance { get; set; } = null;
         public virtual bool Enable { get; set; } = true;
         public int selectDiff = 4;
         public int count = 100;
+        public bool refresh = true;
     }
 }
