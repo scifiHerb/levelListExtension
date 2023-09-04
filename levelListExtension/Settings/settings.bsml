@@ -1,0 +1,5 @@
+<settings-container>
+	<checkbox text='enable' value='enable'></checkbox>
+	<checkbox text='refresh' value='refresh'></checkbox>
+	<checkbox text='priorityPlaylist' value='priorityPlaylist'></checkbox>
+</settings-container>

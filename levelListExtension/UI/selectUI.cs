@@ -33,25 +33,25 @@ namespace levelListExtension.UI
                 resultsView.gameObject, instance
             );
 
-            
             resultsView.didActivateEvent += ResultsView_didActivateEvent;
             resultsView.didDeactivateEvent += ResultsView_didDeactivateEvent;
 
-            root.localPosition = new Vector3(6,21F,0);
+            root.localPosition = new Vector3(5,23F,0);
             root.name = "selectButton";
 
             setDiffName();
-            if (Settings.Settings.Instance.refresh)
+
+            if (Settings.Configuration.Instance.refresh)
             {
-                Plugin.GetSongStats(Settings.Settings.Instance.count, statusText);
-                Settings.Settings.Instance.refresh = false;
+                Plugin.GetSongStats(Settings.Configuration.Instance.count, statusText);
+                Settings.Configuration.Instance.refresh = false;
             }
         }
 
         private void setDiffName()
         {
             string result = "";
-            switch (Settings.Settings.Instance.selectDiff)
+            switch (Settings.Configuration.Instance.selectDiff)
             {
                 case 0:
                     result = "Easy";
@@ -89,8 +89,8 @@ namespace levelListExtension.UI
         [UIAction("onClick")]
         protected async Task onClick()
         {
-            Settings.Settings.Instance.selectDiff += 1;
-            if (Settings.Settings.Instance.selectDiff > 4) Settings.Settings.Instance.selectDiff = 0;
+            Settings.Configuration.Instance.selectDiff += 1;
+            if (Settings.Configuration.Instance.selectDiff > 4) Settings.Configuration.Instance.selectDiff = 0;
 
             setDiffName();
         }

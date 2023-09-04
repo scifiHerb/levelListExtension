@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace levelListExtension.Settings
 {
-    public class Settings
+    public class Configuration
     {
-        public static Settings Instance { get; set; } = null;
-        public virtual bool Enable { get; set; } = true;
-        public int selectDiff = 4;
-        public int count = 100;
-        public bool refresh = true;
+        public static Configuration Instance { get; set; } = null;
+        public virtual bool enable { get; set; } = true;
+        public virtual bool refresh { get; set; } = true;
+        public virtual bool priorityPlaylist { get; set; } = true;
+        public int selectDiff =4;
+        public int count =200;
     }
 }

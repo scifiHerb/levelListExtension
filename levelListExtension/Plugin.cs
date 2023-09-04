@@ -24,6 +24,7 @@ using IPA.Utilities;
 using System.Threading.Tasks;
 using TMPro;
 using System.Security.Policy;
+using BeatSaberPlaylistsLib.Types;
 
 namespace levelListExtension
 {
@@ -45,6 +46,8 @@ namespace levelListExtension
             Instance = this;
             Log = logger;
             Log.Info("levelListExtension initialized.");
+            Configuration.Instance = conf.Generated<Configuration>();
+            BSMLSettings.instance.AddSettingsMenu("levelListExtension", "levelListExtension.Settings.settings.bsml", SettingsHandler.instance);
         }
 
         #region BSIPA Config
@@ -73,35 +76,19 @@ namespace levelListExtension
             new GameObject("levelListExtensionController").AddComponent<levelListExtensionController>();
             BSEvents.levelSelected += OnLevelSelected;
 
-            //load settings
-
-            string settingsText = "";
+            //load songs
             string songsText = "";
-            Settings.Settings.Instance = null;
             LevelList.plScore = null;
 
-            if (!File.Exists(settingsName))
-            {
-                File.Create(settingsName);
-                Settings.Settings.Instance = new Settings.Settings();
-            }
-            else
-            {
-                settingsText = File.ReadAllText(settingsName);
-                Settings.Settings.Instance = JsonConvert.DeserializeObject<Settings.Settings>(settingsText);
-            }
 
-            if (!File.Exists(songFileName))
-            {
-                File.Create(songFileName);
-                LevelList.plScore = new Dictionary<string, PlayerScore>();
-            }
-            else
-            {
-                songsText = File.ReadAllText(songFileName);
-                LevelList.plScore = JsonConvert.DeserializeObject<Dictionary<string, PlayerScore>>(songsText);
-            }
+            if (File.Exists(songFileName)) songsText = File.ReadAllText(songFileName);
+            else songsText = "";
+            LevelList.plScore = JsonConvert.DeserializeObject<Dictionary<string, PlayerScore>>(songsText);
 
+            if (LevelList.plScore == null)
+                LevelList.plScore = LevelList.plScore = new Dictionary<string, PlayerScore>();
+
+            PlaylistManager.Utilities.Events.playlistSelected += onPlaylistSelected;
         }
 
         [OnExit]
@@ -109,20 +96,74 @@ namespace levelListExtension
         {
             Log.Debug("OnApplicationQuit");
 
-            //save settings
-            File.WriteAllText(settingsName, JsonConvert.SerializeObject(Settings.Settings.Instance));
             File.WriteAllText(songFileName, JsonConvert.SerializeObject(LevelList.plScore));
+
+        }
+        public static TextMeshProUGUI packTitle = null;
+        private void onPlaylistSelected(IPlaylist p, BeatSaberPlaylistsLib.PlaylistManager pm)
+        {
+            if (pm == null) return;
+            string filePath = pm.PlaylistPath + "\\" + p.Filename;
+
+            //load playlist data
+            string playlistDataText = "";
+            if (File.Exists(filePath + ".bplist")) playlistDataText = File.ReadAllText(filePath + ".bplist");
+            else if (File.Exists(filePath + ".json")) playlistDataText = File.ReadAllText(filePath + ".json");
+            else playlistDataText = "";
+
+            var playlistData = JsonConvert.DeserializeObject<PlaylistData.Root>(playlistDataText);
+
+            loadPlaylist(playlistData);
+        }
+
+        public static Dictionary<string, string> playlistDiff = new Dictionary<string,string>();
+        private void loadPlaylist(PlaylistData.Root playlistData)
+        {
+            if (playlistData == null) { Plugin.Log.Info("loadPlaylist data null"); return; }
+            if (playlistData.songs == null) { Plugin.Log.Info("loadPlaylist song null"); return; }
+            playlistDiff = new Dictionary<string, string>();
+
+            foreach (var song in playlistData.songs)
+            {
+                if (song.difficulties != null && song.difficulties != null && song.difficulties.Count >= 1)
+                {
+                    switch (song.difficulties[0].name)
+                    {
+                        case "easy":
+                            song.difficulties[0].name = "Easy";
+                            break;
+                        case "normal":
+                            song.difficulties[0].name = "Normal";
+                            break;
+                        case "hard":
+                            song.difficulties[0].name = "Hard";
+                            break;
+                        case "expert":
+                            song.difficulties[0].name = "Expert";
+                            break;
+                        case "expertPlus":
+                            song.difficulties[0].name = "ExpertPlus";
+                            break;
+                    }
+                    song.difficulties[0].characteristic = "Solo" + song.difficulties[0].characteristic;
+
+                    playlistDiff.Remove(song.hash.ToUpper());
+                    playlistDiff.Add(song.hash.ToUpper(), "_" + song.difficulties[0].name + "_" + song.difficulties[0].characteristic);
+                }
+                
+            }
+
         }
 
         private void OnLevelSelected(LevelCollectionViewController lc,IPreviewBeatmapLevel lv)
         {
-            GetSongStats(1);
+            if(!Settings.Configuration.Instance.refresh) GetSongStats(1);
         }
         public static async void GetSongStats(int count,TextMeshProUGUI text = null)
         {
             string url = $"https://scoresaber.com/api/player/{SteamUser.GetSteamID()}";
             var httpClient = new HttpClient();
-            songcount = 0;
+            if(Settings.Configuration.Instance.refresh) songcount = 0;
             
             for (int i = 0; i < count; i++)
             {
@@ -144,7 +185,7 @@ namespace levelListExtension
                         songcount++;
 
                         if(text != null)text.text = $"({songcount.ToString()}/{(limit).ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>";
-                        Plugin.Log.Info($"({songcount.ToString()}/{limit.ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>");
+                        //Plugin.Log.Info($"({songcount.ToString()}/{limit.ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>");
 
                         if (songcount >= limit)
                         {
@@ -158,7 +199,7 @@ namespace levelListExtension
                         }
                     }
                 }
-                if (i != 0 && i % 10 == 0) await Task.Delay(1000);
+                if (i != 0 && i % 30 == 0) await Task.Delay(3000);
             }
         }
     }

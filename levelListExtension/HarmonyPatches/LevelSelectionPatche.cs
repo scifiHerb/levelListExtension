@@ -4,6 +4,7 @@ using HarmonyLib;
 using levelListExtension;
 using levelListExtension.UI;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -16,48 +17,70 @@ namespace levelListExtension.HarmonyPatches
     [HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
     internal class LevelList
     {
+        private static TextMeshProUGUI packTitle = null;
+
         public static Dictionary<string, PlayerScore> plScore = new Dictionary<string, PlayerScore>();
         private static void Postfix(LevelListTableCell __instance, IPreviewBeatmapLevel level, bool isFavorite, ref UnityEngine.UI.Image ____favoritesBadgeImage,
             TextMeshProUGUI ____songBpmText, TextMeshProUGUI ____songAuthorText)
         {
+            //get packTitle
+            if (packTitle == null)
+            {
+                var levelsTableView = GameObject.Find("LevelsTableView");
+                if (levelsTableView != null)
+                {
+                    var b = levelsTableView.transform.Find("TableView/Viewport/Content/LevelPackHeaderTableCell/PackName");
+                    if (b != null) packTitle = b.GetComponent<TextMeshProUGUI>();
+                }
+            }
+            bool isPlaylist = false;
+            if (packTitle && packTitle.text != "Custom Levels") isPlaylist = true;
+            //-----------------------------------
             var resultsView = Resources.FindObjectsOfTypeAll<LevelSelectionNavigationController>().FirstOrDefault();
             selectUI.instance.Create(resultsView);
 
             //return not custom level or mod disabled
-            if (level.levelID.IndexOf("custom_level") == -1 || !Settings.Settings.Instance.Enable) return;
+            if (level.levelID.IndexOf("custom_level") == -1 || !Settings.Configuration.Instance.enable) return;
 
             string levelID = level.levelID.Substring(13);
             ____songBpmText.text = "";
 
-            __instance.transform.name = "test selectlist";
-
             string diffRaw = "";
-            int selectDiff = Settings.Settings.Instance.selectDiff;
+            int selectDiff = Settings.Configuration.Instance.selectDiff;
 
-            for (; selectDiff != -1; selectDiff--)
+            //get song highScore
+            //set difficulty name
+            if (Plugin.playlistDiff.ContainsKey(levelID) && Settings.Configuration.Instance.priorityPlaylist && isPlaylist)
             {
-                switch (selectDiff)
-                {
-                    case 4:
-                        diffRaw = "_ExpertPlus_SoloStandard";
-                        break;
-                    case 3:
-                        diffRaw = "_Expert_SoloStandard";
-                        break;
-                    case 2:
-                        diffRaw = "_Hard_SoloStandard";
-                        break;
-                    case 1:
-                        diffRaw = "_Normal_SoloStandard";
-                        break;
-                    case 0:
-                        diffRaw = "_Easy_SoloStandard";
-                        break;
-                }
-
-                if (plScore.ContainsKey(levelID + diffRaw))break;
+                diffRaw = Plugin.playlistDiff[levelID];
             }
-            
+            else
+            {
+                for (; selectDiff != -1; selectDiff--)
+                {
+                    switch (selectDiff)
+                    {
+                        case 4:
+                            diffRaw = "_ExpertPlus_SoloStandard";
+                            break;
+                        case 3:
+                            diffRaw = "_Expert_SoloStandard";
+                            break;
+                        case 2:
+                            diffRaw = "_Hard_SoloStandard";
+                            break;
+                        case 1:
+                            diffRaw = "_Normal_SoloStandard";
+                            break;
+                        case 0:
+                            diffRaw = "_Easy_SoloStandard";
+                            break;
+                    }
+
+                    if (plScore.ContainsKey(levelID + diffRaw)) break;
+                }
+            }
+
             if (plScore.ContainsKey(levelID+ diffRaw))
             {
                 //____songAuthorText.text = (((float)plScore[levelID].Score.BaseScore / plScore[levelID].Leaderboard.MaxScore)*100F).ToString("F"); 
@@ -66,31 +89,31 @@ namespace levelListExtension.HarmonyPatches
                 //string diff = plScore[levelID].Leaderboard.Difficulty.DifficultyRaw;
                 string diff = "";
                 string diffColor = "#FFFFFF";
-                switch (selectDiff)
+                switch (diffRaw)
                 {
-                    case 4:
+                    case "_ExpertPlus_SoloStandard":
                         diff = "Ex+";
                         diffColor = "#00FFFF";
                         break;
-                    case 3:
+                    case "_Expert_SoloStandard":
                         diff = "Ex";
                         diffColor = "#00FF00";
                         break;
-                    case 2:
+                    case "_Hard_SoloStandard":
                         diff = "H";
                         diffColor = "#FF8000";
                         break;
-                    case 1:
+                    case "_Normal_SoloStandard":
                         diff = "N";
                         diffColor = "#808080";
                         break;
-                    case 0:
+                    case "_Easy_SoloStandard":
                         diff = "E";
                         diffColor = "#808080";
                         break;
                 }
                 
-                float acc = ((float)plScore[levelID+diffRaw].Score.BaseScore / plScore[levelID + diffRaw].Leaderboard.MaxScore) * 100;
+                float acc = ((float)plScore[levelID+diffRaw].Score.ModifiedScore / plScore[levelID + diffRaw].Leaderboard.MaxScore) * 100;
                 string accText = "";
                 string accColor = "#FFFFFF";
 
@@ -105,18 +128,30 @@ namespace levelListExtension.HarmonyPatches
                 else if (acc < 20.0F) { accText = "E"; accColor = "#FF0000"; }
 
                 ____songBpmText.text = $"<color={diffColor}>{diff}</color>(<color=#FFCC4E>★</color>{plScore[levelID + diffRaw].Leaderboard.Stars.ToString("F1")}) " +
-                $"<color={accColor}>{accText}</color>(<color={accColor}>{acc.ToString("F1")}</color>%) " +
-                $"<color=#FF0000>x</color>(<color=#FF0000>{(plScore[levelID + diffRaw].Score.MissedNotes + plScore[levelID + diffRaw].Score.BadCuts)}</color>)" +
+                $"<color={accColor}>{accText}</color>(<color={accColor}>{acc.ToString("F1")}</color>%) ";
+
+                //add modifiers
+                if(plScore[levelID + diffRaw].Score.Modifiers!= "")____songBpmText.text += $"[{plScore[levelID + diffRaw].Score.Modifiers}]";
+                //add missed notes,pp
+                ____songBpmText.text += $"<color=#FF0000>x</color>(<color=#FF0000>{(plScore[levelID + diffRaw].Score.MissedNotes + plScore[levelID + diffRaw].Score.BadCuts)}</color>)" +
                 $"<color=#00FF00>{plScore[levelID + diffRaw].Score.Pp.ToString("F1")}</color>pp";
 
+                //add text
+                if(Plugin.playlistDiff.ContainsKey(levelID))____songBpmText.text += "*";
+
                 //set ui
-                ____songAuthorText.GetComponent<RectTransform>().anchorMax = new Vector2(0.6F, 0.5F);
+                ____songAuthorText.GetComponent<RectTransform>().anchorMax = new Vector2(0.5F, 0.5F);
                 var bpmIcon = ____songAuthorText.transform.parent.Find("BpmIcon");
                 if (bpmIcon != null) bpmIcon.gameObject.SetActive(false);
 
                 var songAuthorText = ____songAuthorText.transform.parent.Find("SongAuthor");
                 if (songAuthorText != null) songAuthorText.GetComponent<TextMeshProUGUI>().text = 
                         $"[<color=#00FF00>{plScore[levelID + diffRaw].Leaderboard.LevelAuthorName}</color>]";
+
+                //debug
+                /*Plugin.Log.Info($"pMod:{plScore[levelID + diffRaw].Leaderboard.PositiveModifiers}" +
+                    $"modscore:{plScore[levelID + diffRaw].Score.ModifiedScore}" +
+                    $"mod:{plScore[levelID + diffRaw].Score.Modifiers}");*/
             }
             else
             {
