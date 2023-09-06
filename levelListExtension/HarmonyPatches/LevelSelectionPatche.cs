@@ -118,14 +118,14 @@ namespace levelListExtension.HarmonyPatches
                 string accColor = "#FFFFFF";
 
                 //set rank acc
-                if (acc == 100) { accText = "SSS"; accColor = "#00FFFF"; }
-                else if (acc >= 90.0F) { accText = "SS"; accColor = "#00FFFF"; }
-                else if (acc >= 80.0F) { accText = "S"; accColor = "#00FF00"; }
-                else if (acc >= 65.0F) { accText = "A"; accColor = "#00FF00"; }
-                else if (acc >= 50.0F) { accText = "B"; accColor = "#FF8000"; }
-                else if (acc >= 35.0F) { accText = "C"; accColor = "#FF8000"; }
-                else if (acc >= 20.0F) { accText = "D"; accColor = "#FF0000"; }
-                else if (acc < 20.0F) { accText = "E"; accColor = "#FF0000"; }
+                if (acc >= Settings.Configuration.Instance.Rank_SSS) { accText = "SSS"; accColor = Settings.Configuration.Instance.Rank_SSS_Color; }
+                else if (acc >= Settings.Configuration.Instance.Rank_SS) { accText = "SS"; accColor = Settings.Configuration.Instance.Rank_SS_Color; }
+                else if (acc >= Settings.Configuration.Instance.Rank_S) { accText = "S"; accColor = Settings.Configuration.Instance.Rank_S_Color; }
+                else if (acc >= Settings.Configuration.Instance.Rank_A) { accText = "A"; accColor = Settings.Configuration.Instance.Rank_A_Color; }
+                else if (acc >= Settings.Configuration.Instance.Rank_B) { accText = "B"; accColor = Settings.Configuration.Instance.Rank_B_Color; }
+                else if (acc >= Settings.Configuration.Instance.Rank_C) { accText = "C"; accColor = Settings.Configuration.Instance.Rank_C_Color; }
+                else if (acc >= Settings.Configuration.Instance.Rank_D) { accText = "D"; accColor = Settings.Configuration.Instance.Rank_D_Color; }
+                else if (acc < Settings.Configuration.Instance.Rank_D) { accText = "E"; accColor = Settings.Configuration.Instance.Rank_E_Color; }
 
                 ____songBpmText.text = $"<color={diffColor}>{diff}</color>(<color=#FFCC4E>★</color>{plScore[levelID + diffRaw].Leaderboard.Stars.ToString("F1")}) " +
                 $"<color={accColor}>{accText}</color>(<color={accColor}>{acc.ToString("F1")}</color>%) ";
