@@ -2,4 +2,5 @@
 	<checkbox text='enable' value='enable'></checkbox>
 	<checkbox text='refresh' value='refresh'></checkbox>
 	<checkbox text='priorityPlaylist' value='priorityPlaylist'></checkbox>
+	<dropdown-list-setting text ='dataPriority' value ='list-choice' choices='list-options'/>
 </settings-container>

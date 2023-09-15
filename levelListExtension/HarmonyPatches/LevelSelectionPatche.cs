@@ -6,6 +6,7 @@ using levelListExtension.UI;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Windows.Forms;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -56,6 +57,31 @@ namespace levelListExtension.HarmonyPatches
             }
             else
             {
+                selectDiff = Settings.Configuration.Instance.selectDiff;
+                for (; selectDiff != -1; selectDiff--)
+                {
+                    switch (selectDiff)
+                    {
+                        case 4:
+                            diffRaw = "_ExpertPlus_SoloLawless";
+                            break;
+                        case 3:
+                            diffRaw = "_Expert_SoloLawless";
+                            break;
+                        case 2:
+                            diffRaw = "_Hard_SoloLawless";
+                            break;
+                        case 1:
+                            diffRaw = "_Normal_SoloLawless";
+                            break;
+                        case 0:
+                            diffRaw = "_Easy_SoloLawless";
+                            break;
+                    }
+
+                    if (plScore.ContainsKey(levelID + diffRaw)) goto endSelectDiff;
+                }
+                selectDiff = Settings.Configuration.Instance.selectDiff;
                 for (; selectDiff != -1; selectDiff--)
                 {
                     switch (selectDiff)
@@ -77,14 +103,63 @@ namespace levelListExtension.HarmonyPatches
                             break;
                     }
 
-                    if (plScore.ContainsKey(levelID + diffRaw)) break;
+                    if (plScore.ContainsKey(levelID + diffRaw)) goto endSelectDiff;
+                }
+
+                selectDiff = Settings.Configuration.Instance.selectDiff;
+                for (; selectDiff != -1; selectDiff--)
+                {
+                    switch (selectDiff)
+                    {
+                        case 4:
+                            diffRaw = "_ExpertPlus_SoloOneSaber";
+                            break;
+                        case 3:
+                            diffRaw = "_Expert_SoloOneSaber";
+                            break;
+                        case 2:
+                            diffRaw = "_Hard_SoloOneSaber";
+                            break;
+                        case 1:
+                            diffRaw = "_Normal_SoloOneSaber";
+                            break;
+                        case 0:
+                            diffRaw = "_Easy_SoloOneSaber";
+                            break;
+                    }
+
+                    if (plScore.ContainsKey(levelID + diffRaw)) goto endSelectDiff;
+                }
+
+                selectDiff = Settings.Configuration.Instance.selectDiff;
+                for (; selectDiff != -1; selectDiff--)
+                {
+                    switch (selectDiff)
+                    {
+                        case 4:
+                            diffRaw = "_ExpertPlus_Solo360Degree";
+                            break;
+                        case 3:
+                            diffRaw = "_Expert_Solo360Degree";
+                            break;
+                        case 2:
+                            diffRaw = "_Hard_Solo360Degree";
+                            break;
+                        case 1:
+                            diffRaw = "_Normal_Solo360Degree";
+                            break;
+                        case 0:
+                            diffRaw = "_Easy_Solo360Degree";
+                            break;
+                    }
+
+                    if (plScore.ContainsKey(levelID + diffRaw)) goto endSelectDiff;
                 }
             }
+            endSelectDiff:
 
             if (plScore.ContainsKey(levelID+ diffRaw))
             {
-                //____songAuthorText.text = (((float)plScore[levelID].Score.BaseScore / plScore[levelID].Leaderboard.MaxScore)*100F).ToString("F"); 
-
                 //setText
                 //string diff = plScore[levelID].Leaderboard.Difficulty.DifficultyRaw;
                 string diff = "";
@@ -93,23 +168,23 @@ namespace levelListExtension.HarmonyPatches
                 {
                     case "_ExpertPlus_SoloStandard":
                         diff = "Ex+";
-                        diffColor = "#00FFFF";
+                        diffColor = Settings.Configuration.Instance.Difficulty_ExPlus_Color;
                         break;
                     case "_Expert_SoloStandard":
                         diff = "Ex";
-                        diffColor = "#00FF00";
+                        diffColor = Settings.Configuration.Instance.Difficulty_Ex_Color;
                         break;
                     case "_Hard_SoloStandard":
                         diff = "H";
-                        diffColor = "#FF8000";
+                        diffColor = Settings.Configuration.Instance.Difficulty_Hard_Color;
                         break;
                     case "_Normal_SoloStandard":
                         diff = "N";
-                        diffColor = "#808080";
+                        diffColor = Settings.Configuration.Instance.Difficulty_Normal_Color;
                         break;
                     case "_Easy_SoloStandard":
                         diff = "E";
-                        diffColor = "#808080";
+                        diffColor = Settings.Configuration.Instance.Difficulty_Easy_Color;
                         break;
                 }
                 
@@ -119,7 +194,9 @@ namespace levelListExtension.HarmonyPatches
 
                 //set rank acc
                 if (acc >= Settings.Configuration.Instance.Rank_SSS) { accText = "SSS"; accColor = Settings.Configuration.Instance.Rank_SSS_Color; }
+                else if (acc >= Settings.Configuration.Instance.Rank_SSPlus) { accText = "SS+"; accColor = Settings.Configuration.Instance.Rank_SSPlus_Color; }
                 else if (acc >= Settings.Configuration.Instance.Rank_SS) { accText = "SS"; accColor = Settings.Configuration.Instance.Rank_SS_Color; }
+                else if (acc >= Settings.Configuration.Instance.Rank_SPlus) { accText = "S+"; accColor = Settings.Configuration.Instance.Rank_SPlus_Color; }
                 else if (acc >= Settings.Configuration.Instance.Rank_S) { accText = "S"; accColor = Settings.Configuration.Instance.Rank_S_Color; }
                 else if (acc >= Settings.Configuration.Instance.Rank_A) { accText = "A"; accColor = Settings.Configuration.Instance.Rank_A_Color; }
                 else if (acc >= Settings.Configuration.Instance.Rank_B) { accText = "B"; accColor = Settings.Configuration.Instance.Rank_B_Color; }
@@ -127,7 +204,12 @@ namespace levelListExtension.HarmonyPatches
                 else if (acc >= Settings.Configuration.Instance.Rank_D) { accText = "D"; accColor = Settings.Configuration.Instance.Rank_D_Color; }
                 else if (acc < Settings.Configuration.Instance.Rank_D) { accText = "E"; accColor = Settings.Configuration.Instance.Rank_E_Color; }
 
-                ____songBpmText.text = $"<color={diffColor}>{diff}</color>(<color=#FFCC4E>★</color>{plScore[levelID + diffRaw].Leaderboard.Stars.ToString("F1")}) " +
+                //star color
+                string starColor = "";
+                if (plScore[levelID + diffRaw].isScoreSaber == true) starColor = "#FFCC4E";
+                else starColor = "#FF00FF";
+
+                ____songBpmText.text = $"<color={diffColor}>{diff}</color>(<color={starColor}>★</color>{plScore[levelID + diffRaw].Leaderboard.Stars.ToString("F1")}) " +
                 $"<color={accColor}>{accText}</color>(<color={accColor}>{acc.ToString("F1")}</color>%) ";
 
                 //add modifiers

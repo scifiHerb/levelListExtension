@@ -37,5 +37,18 @@ namespace levelListExtension.Settings
                 Configuration.Instance.priorityPlaylist = value;
             }
         }
+
+        [UIValue("list-options")]
+        private List<object> options = new object[] { "Score Saber", "Beat Leader" }.ToList(); 
+            
+        [UIValue("list-choice")]
+        private string listChoice
+        {
+            get => Configuration.Instance.listChoice;
+            set
+            {
+                Configuration.Instance.listChoice = value;
+            }
+        }
     }
 }

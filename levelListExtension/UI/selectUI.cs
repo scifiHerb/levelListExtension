@@ -43,6 +43,7 @@ namespace levelListExtension.UI
 
             if (Settings.Configuration.Instance.refresh)
             {
+                Plugin.GetSongStatsBl(Settings.Configuration.Instance.count, statusText);
                 Plugin.GetSongStats(Settings.Configuration.Instance.count, statusText);
                 Settings.Configuration.Instance.refresh = false;
             }

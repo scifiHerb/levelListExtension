@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using TMPro;
 using System.Security.Policy;
 using BeatSaberPlaylistsLib.Types;
+using IPA.Config.Data;
 
 namespace levelListExtension
 {
@@ -64,8 +65,10 @@ namespace levelListExtension
 
 
         private static int songcount = 0;
+        private static int songcountBl = 0;
         private string settingsName = Directory.GetCurrentDirectory() + "\\UserData\\levelListExtension.json";
         private string songFileName = Directory.GetCurrentDirectory() + "\\UserData\\levelListExtension_Songs.json";
+        private string songFileNameBl = Directory.GetCurrentDirectory() + "\\UserData\\levelListExtension_SongsBl.json";
         [OnStart]
         public void OnApplicationStart()
         {
@@ -150,28 +153,31 @@ namespace levelListExtension
                     playlistDiff.Remove(song.hash.ToUpper());
                     playlistDiff.Add(song.hash.ToUpper(), "_" + song.difficulties[0].name + "_" + song.difficulties[0].characteristic);
                 }
-                
             }
 
         }
 
         private void OnLevelSelected(LevelCollectionViewController lc,IPreviewBeatmapLevel lv)
         {
-            if(!Settings.Configuration.Instance.refresh) GetSongStats(1);
+            if (!Settings.Configuration.Instance.refresh)
+            {
+                if (Settings.Configuration.Instance.listChoice == "Score Saber") GetSongStats(1);
+                else if (Settings.Configuration.Instance.listChoice == "Beat Leader") GetSongStatsBl(1);
+            }
         }
-        public static async void GetSongStats(int count,TextMeshProUGUI text = null)
+        public static async void GetSongStats(int count, TextMeshProUGUI text = null)
         {
             string url = $"https://scoresaber.com/api/player/{SteamUser.GetSteamID()}";
             var httpClient = new HttpClient();
-            if(Settings.Configuration.Instance.refresh) songcount = 0;
-            
+            if (Settings.Configuration.Instance.refresh) songcount = 0;
+
             for (int i = 0; i < count; i++)
             {
-                var response = await httpClient.GetAsync(url + "/scores?sort=recent&page="+i); // 非同期にWebリクエストを送信する
+                var response = await httpClient.GetAsync(url + "/scores?sort=recent&page=" + i); // 非同期にWebリクエストを送信する
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync(); // 非同期にレスポンスを読み込む
-                    if (result == null)return;
+                    if (result == null) return;
 
                     var data = JsonConvert.DeserializeObject<PlayerScoresInfo>(result);
                     var limit = count * 8;
@@ -179,12 +185,27 @@ namespace levelListExtension
 
                     foreach (var l in data.PlayerScores)
                     {
-                        LevelList.plScore.Remove(l.Leaderboard.SongHash + l.Leaderboard.Difficulty.DifficultyRaw);
-                        LevelList.plScore.Add(l.Leaderboard.SongHash + l.Leaderboard.Difficulty.DifficultyRaw, l);
+                        //priority 
+                        string key = l.Leaderboard.SongHash + l.Leaderboard.Difficulty.DifficultyRaw;
+                        if (LevelList.plScore.ContainsKey(key))
+                        {
+                            if (Settings.Configuration.Instance.listChoice == "Score Saber" || LevelList.plScore[key].isScoreSaber == true)
+                            {
+                                LevelList.plScore.Remove(key);
+                                LevelList.plScore.Add(key, l);
+                                LevelList.plScore[key].isScoreSaber = true;
+                            }
+                        }
+                        else
+                        {
+                            LevelList.plScore.Remove(key);
+                            LevelList.plScore.Add(key, l);
+                            LevelList.plScore[key].isScoreSaber = true;
+                        }
 
                         songcount++;
 
-                        if(text != null)text.text = $"({songcount.ToString()}/{(limit).ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>";
+                        if (text != null) text.text = $"({songcount.ToString()}/{(limit).ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>";
                         //Plugin.Log.Info($"({songcount.ToString()}/{limit.ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>");
 
                         if (songcount >= limit)
@@ -200,6 +221,90 @@ namespace levelListExtension
                     }
                 }
                 if (i != 0 && i % 30 == 0) await Task.Delay(3000);
+            }
+        }
+        public static async void GetSongStatsBl(int count, TextMeshProUGUI text = null)
+        {
+        //https://api.beatleader.xyz/player/76561199194622414/scores?sortBy=date&page=1&count=1
+            string url = $"https://api.beatleader.xyz/player/{SteamUser.GetSteamID()}";
+            var httpClient = new HttpClient();
+            if (Settings.Configuration.Instance.refresh) songcountBl = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                var response = await httpClient.GetAsync(url + $"/scores?sortBy=date&page={i}&count={count*8}"); // 非同期にWebリクエストを送信する
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadAsStringAsync(); // 非同期にレスポンスを読み込む
+                    if (result == null) return;
+
+                    BL.Root data = null;
+
+                    data = JsonConvert.DeserializeObject<BL.Root>(result);
+                    var limit = count * 8;
+                    if (limit > data.metadata.total) limit = (int)data.metadata.total;
+
+                    foreach (var l in data.data)
+                    {
+                        PlayerScore plScore = new PlayerScore();
+
+                        //init
+                        plScore.Score = new Score();
+                        plScore.Score.Leaderboard = new Leaderboard();
+                        plScore.Leaderboard = new Leaderboard();
+
+                        plScore.Leaderboard.SongHash = l.leaderboard.song.hash;
+                        plScore.Score.ModifiedScore = (int)l.modifiedScore;
+                        plScore.Score.MissedNotes = (int)l.missedNotes;
+                        plScore.Score.BadCuts = (int)l.badCuts;
+                        if(l.pp!=null)plScore.Score.Pp = (double)l.pp;
+
+                        plScore.Leaderboard.MaxScore = (int)l.leaderboard.difficulty.maxScore;
+                        plScore.Leaderboard.LevelAuthorName = l.leaderboard.song.mapper;
+                        plScore.Leaderboard.SongAuthorName = l.leaderboard.song.author;
+                        plScore.Leaderboard.SongName = l.leaderboard.song.name;
+                        plScore.Leaderboard.SongSubName = l.leaderboard.song.subName;
+                        if(l.leaderboard.difficulty.stars!=null)plScore.Leaderboard.Stars = (double)l.leaderboard.difficulty.stars;
+                        plScore.isScoreSaber = false;
+                        //
+                        plScore.Score.Modifiers = "";
+
+                        string key = $"{l.leaderboard.song.hash.ToUpper()}_{l.leaderboard.difficulty.difficultyName}_Solo{l.leaderboard.difficulty.modeName}";
+
+                        //priority
+                        //if plScore.Leaderboard.SongName == null ->Beat Leader
+                        if (LevelList.plScore.ContainsKey(key))
+                        {
+                            if(Settings.Configuration.Instance.listChoice == "Beat Leader" || LevelList.plScore[key].isScoreSaber == null || LevelList.plScore[key].isScoreSaber == false)
+                            {
+                                LevelList.plScore.Remove(key);
+                                LevelList.plScore.Add(key, plScore);
+                            }
+                        }
+                        else
+                        {
+                            LevelList.plScore.Remove(key);
+                            LevelList.plScore.Add(key, plScore);
+                        }
+
+                        songcountBl++;
+
+                        if (text != null) text.text = $"({songcountBl.ToString()}/{(limit).ToString()}) " + $"Loaded <color=#00FF00>{l.leaderboard.song.name}</color>";
+                        //Plugin.Log.Info($"({songcount.ToString()}/{limit.ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>");
+
+                        if (songcountBl >= limit)
+                        {
+                            if (text != null)
+                            {
+                                text.text += " - Completed";
+                                await Task.Delay(1000);
+                                text.text = "";
+                                return;
+                            }
+                        }
+                    }
+                }
+                if (i != 0 && i % 30 == 0) await Task.Delay(1000);
             }
         }
     }

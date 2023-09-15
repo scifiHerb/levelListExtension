@@ -68,6 +68,7 @@ namespace levelListExtension
     {
         public Score Score { get; set; }
         public Leaderboard Leaderboard { get; set; }
+        public bool? isScoreSaber { get; set; }
     }
 
     public class Metadata
