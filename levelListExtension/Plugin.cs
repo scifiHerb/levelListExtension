@@ -206,7 +206,6 @@ namespace levelListExtension
                         songcount++;
 
                         if (text != null) text.text = $"({songcount.ToString()}/{(limit).ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>";
-                        //Plugin.Log.Info($"({songcount.ToString()}/{limit.ToString()}) " + $"Loaded <color=#00FF00>{l.Leaderboard.SongName}</color>");
 
                         if (songcount >= limit)
                         {
