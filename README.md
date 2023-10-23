@@ -25,27 +25,3 @@
   "Rank_*Color~":ランクの色をそれぞれ設定できます  
   "Difficulty~":各難易度の色設定が出来ます。  
 }
-
-# English Translate
-This is an extension mod for Beat Saber, which displays the high score (or the score from a lower difficulty if it doesn't exist) for a specified difficulty in the song list.  
-
-The supported version is Beat Saber 1.29.1, and it's compatible with the SteamVR version only.  
-
-# Usage
-Upon launching, you should load a song on the song selection screen. The loaded song information is continuously retrieved and saved in a file, so you won't need to do it again after the first time.  
-
-# Configuration (\Beat Saber\UserData\levelListExtension.json)  
-{  
-"Enable": true, : Turn the MOD on or off.  
-"refresh" : Determines whether to reload the song list. It automatically sets to false after loading.   
-"priorityPlaylist" : When a playlist has a difficulty set, it will prioritize the set difficulty, regardless of selectDiff.  
-"listChoice" : Choose between ScoreSaber or BeatLeader as a priority.  
-"selectDiff": 4, : The specified difficulty (0=easy, 4=expert plus).  
-"count": 200, : Number of songs to retrieve (8 songs are retrieved at once, so it's count8 songs in total).  
-"Rank~" : You can set accuracy values for each rank.  
-"Rank_Color~" : You can set colors for each rank.  
-"Difficulty~" : You can set colors for each difficulty.  
-}
-
-
-
