@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace levelListExtension
 {
-    using System;
-    using Newtonsoft.Json;
-
     public class Difficulty
     {
         public int LeaderboardId { get; set; }
@@ -34,7 +28,7 @@ namespace levelListExtension
         public bool Ranked { get; set; }
         public bool Qualified { get; set; }
         public bool Loved { get; set; }
-        public int MaxPP { get; set; }
+        public double MaxPP { get; set; }
         public double Stars { get; set; }
         public int Plays { get; set; }
         public int DailyPlays { get; set; }

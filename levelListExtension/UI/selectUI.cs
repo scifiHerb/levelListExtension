@@ -1,23 +1,9 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
-using BeatSaberMarkupLanguage.Parser;
-using HMUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using levelListExtension;
-
-using static IPA.Logging.Logger;
-using System.Configuration;
-using levelListExtension.Settings;
-using IPA.Utilities;
-using System.IO;
 
 namespace levelListExtension.UI
 {
@@ -25,10 +11,12 @@ namespace levelListExtension.UI
     {
         static public selectUI instance = new selectUI();
 
+        public bool IsCreated => root != null;
+
         public void Create(LevelSelectionNavigationController resultsView)
         {
             if (root != null) return;
-            BSMLParser.instance.Parse(
+            BSMLParser.Instance.Parse(
                 Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), $"levelListExtension.UI.selectUI.bsml"),
                 resultsView.gameObject, instance
             );
@@ -74,19 +62,13 @@ namespace levelListExtension.UI
         }
         private void ResultsView_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            //Plugin.Log.Info("Activate");
             root.gameObject.SetActive(true);
         }
         private void ResultsView_didDeactivateEvent(bool removedFromHierarchy, bool screenSystemDisabling)
         {
-            //Plugin.Log.Info("DEACTIVATE");
             root.gameObject.SetActive(false);
         }
 
-
-        public void setText(string  text)
-        {
-        }
         [UIAction("onClick")]
         protected async Task onClick()
         {
